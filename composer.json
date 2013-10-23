@@ -8,5 +8,13 @@
     ],
     "require": {
 
+    },
+    "autoload": {
+        "psr-0": {
+            "Grace\\DBAL": "lib/",
+            "Grace\\Tests\\DBAL": "lib/",
+            "Grace\\SQLBuilder": "lib/",
+            "Grace\\Tests\\SQLBuilder": "lib/"
+        }
     }
 }
