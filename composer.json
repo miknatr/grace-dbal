@@ -1,0 +1,12 @@
+{
+    "name": "miknatr/grace-dbal",
+    "authors": [
+        {
+            "name": "miknatr",
+            "email": "miknatr@gmail.com"
+        }
+    ],
+    "require": {
+
+    }
+}
