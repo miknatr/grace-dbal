@@ -50,11 +50,6 @@ class MysqliConnectionTest extends ConnectionTestAbstract
         $this->assertEquals('10', $this->connection->getLastInsertId());
         $this->connection->execute('DROP TABLE IF EXISTS test');
     }
-    public function testGettingAffectedRowsBeforeConnectionEsbablished()
-    {
-        $this->connection = new Connection(TEST_MYSQLI_HOST, TEST_MYSQLI_PORT, TEST_MYSQLI_NAME, TEST_MYSQLI_PASSWORD, TEST_MYSQLI_DATABASE);
-        $this->assertEquals(false, $this->connection->getAffectedRows());
-    }
     public function testGettingAffectedRows()
     {
         $this->connection->execute('DROP TABLE IF EXISTS test');

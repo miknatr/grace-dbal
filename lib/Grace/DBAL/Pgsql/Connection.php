@@ -22,6 +22,7 @@ use Grace\DBAL\Pgsql\Result;
 class Connection extends ConnectionAbstract
 {
     private $resource;
+    /** @var Result */
     private $lastResult;
     private $transactionProcess = false;
     private $host;
@@ -63,18 +64,19 @@ class Connection extends ConnectionAbstract
         }
 
         $this->getLogger()->startQuery($query);
-        $this->lastResult = @pg_query($this->resource, $query);
+        $result = @pg_query($this->resource, $query);
         $this->getLogger()->stopQuery();
 
-        if ($this->lastResult === false) {
+        if ($result === false) {
             $error = pg_last_error($this->resource);
             if ($this->transactionProcess) {
                 $this->rollback();
             }
             throw new QueryException("Query error: " . $error . "\nSQL:\n" . $query);
         } elseif ($needResult) {
-            return new Result($this->lastResult);
+            return $this->lastResult = new Result($result);
         } else {
+            $this->lastResult = new Result($result);
             return true;
         }
     }
@@ -115,11 +117,7 @@ class Connection extends ConnectionAbstract
      */
     public function getAffectedRows()
     {
-        if (!is_resource($this->lastResult)) {
-            return false;
-        }
-
-        return pg_affected_rows($this->lastResult);
+        return $this->lastResult->getAffectedRows();
     }
     /**
      * @inheritdoc

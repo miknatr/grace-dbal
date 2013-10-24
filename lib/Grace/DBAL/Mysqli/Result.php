@@ -30,7 +30,7 @@ class Result extends ResultAbstract
     /**
      * @param \mysqli_result $result
      */
-    public function __construct(\mysqli_result $result)
+    public function __construct(\mysqli_result $result = null)
     {
         $this->result = $result;
     }
@@ -39,6 +39,8 @@ class Result extends ResultAbstract
      */
     public function __destruct()
     {
-        $this->result->free();
+        if (is_object($this->result)) {
+            $this->result->free();
+        }
     }
 }

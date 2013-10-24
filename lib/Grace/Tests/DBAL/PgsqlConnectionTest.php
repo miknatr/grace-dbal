@@ -43,7 +43,7 @@ class PgsqlConnectionTest extends ConnectionTestAbstract
     public function testSuccessfullQueryWithoutResults()
     {
         $r = $this->connection->execute('CREATE TEMP TABLE test(id serial);');
-        $this->assertTrue($r);
+        $this->assertTrue((bool) $r);
     }
 
     public function testFieldEscaping()
@@ -151,10 +151,5 @@ class PgsqlConnectionTest extends ConnectionTestAbstract
         $this->connection->execute('INSERT INTO test VALUES (3, \'Bill\')');
         $this->connection->execute('UPDATE test SET name=\'Human\'');
         $this->assertEquals(3, $this->connection->getAffectedRows());
-    }
-
-    public function testGettingAffectedRowsBeforeConnectionEsbablished()
-    {
-        $this->assertEquals(false, $this->connection->getAffectedRows());
     }
 }

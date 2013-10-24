@@ -12,7 +12,6 @@ abstract class ConnectionTestAbstract extends \PHPUnit_Framework_TestCase
     abstract public function testBadConnectionConfig();
     abstract public function testGettingLastInsertIdBeforeConnectionEsbablished();
     abstract public function testGettingLastInsertId();
-    abstract public function testGettingAffectedRowsBeforeConnectionEsbablished();
     abstract public function testGettingAffectedRows();
     abstract public function testEscaping();
     abstract public function testFieldEscaping();
@@ -40,7 +39,7 @@ abstract class ConnectionTestAbstract extends \PHPUnit_Framework_TestCase
     public function testSuccessfullQueryWithoutResults()
     {
         $r = $this->connection->execute('DO 1');
-        $this->assertTrue($r);
+        $this->assertTrue((bool) $r);
     }
     public function testFailQuery()
     {

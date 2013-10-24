@@ -48,7 +48,7 @@ class Connection extends ConnectionAbstract
     }
     /**
      * @inheritdoc
-     * @return bool|Result
+     * @return Result
      * @throws \Grace\DBAL\Exception\QueryException
      */
     public function execute($query, array $arguments = array())
@@ -74,12 +74,8 @@ class Connection extends ConnectionAbstract
             throw new QueryException('Query error ' . $this->dbh->errno . ' - ' . $this->dbh->error . ". \nSQL:\n" . $query);
         }
 
-        if (is_object($result)) {
-            /** @var \mysqli_result $result */
-            return new Result($result);
-        }
-
-        return true;
+        /** @var \mysqli_result $result */
+        return new Result(is_object($result) ? $result : null);
     }
     /**
      * @inheritdoc

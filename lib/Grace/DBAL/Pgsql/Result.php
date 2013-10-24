@@ -35,10 +35,6 @@ class Result extends ResultAbstract
      */
     public function __construct($result)
     {
-        if (!is_resource($result)) {
-            throw new ConnectionException('Result should be a valid resource');
-        }
-
         $this->result = $result;
     }
     /**
@@ -46,6 +42,17 @@ class Result extends ResultAbstract
      */
     public function __destruct()
     {
-        pg_free_result($this->result);
+        if (is_resource($this->result)) {
+            pg_free_result($this->result);
+        }
+    }
+
+    public function getAffectedRows()
+    {
+        if (!is_resource($this->result)) {
+            return false;
+        }
+
+        return pg_affected_rows($this->result);
     }
 }
