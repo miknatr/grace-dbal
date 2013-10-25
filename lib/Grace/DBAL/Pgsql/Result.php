@@ -46,6 +46,17 @@ class Result extends ResultAbstract
             pg_free_result($this->result);
         }
     }
+    /**
+     * @inheritdoc
+     */
+    public function getNumRows()
+    {
+        if (!is_resource($this->result)) {
+            return false;
+        }
+
+        return pg_num_rows($this->result);
+    }
 
     public function getAffectedRows()
     {

@@ -43,4 +43,15 @@ class Result extends ResultAbstract
             $this->result->free();
         }
     }
+    /**
+     * @inheritdoc
+     */
+    public function getNumRows()
+    {
+        if (!is_object($this->result)) {
+            return false;
+        }
+
+        return $this->result->num_rows;
+    }
 }

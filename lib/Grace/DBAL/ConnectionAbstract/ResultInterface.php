@@ -45,4 +45,11 @@ interface ResultInterface
      * @return array key-value
      */
     public function fetchHash();
+    /**
+     * Returns number of rows in query result
+     * Returns false if result is not presented
+     * @abstract
+     * @return int|bool
+     */
+    public function getNumRows();
 }
