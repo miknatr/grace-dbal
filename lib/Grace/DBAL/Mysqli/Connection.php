@@ -40,6 +40,8 @@ class Connection extends ConnectionAbstract
      */
     public function __construct($host, $port, $user, $password, $database)
     {
+        parent::__construct();
+
         $this->host     = $host;
         $this->port     = $port;
         $this->user     = $user;

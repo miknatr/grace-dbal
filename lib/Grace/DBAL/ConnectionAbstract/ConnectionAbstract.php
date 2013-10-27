@@ -21,6 +21,92 @@ use Grace\Cache\CacheInterface;
  */
 abstract class ConnectionAbstract implements ConnectionInterface
 {
+    /** @var array ConnectionAbstract */
+    private static $connections = array();
+    public function __construct()
+    {
+        self::$connections[] = $this;
+    }
+
+    public static function debug($onlySlow = false)
+    {
+        foreach (self::$connections as $connection) {
+            /** @var ConnectionAbstract $connection */
+            $connectionQueries = $connection->getLogger()->getConnections();
+            $queries = $connection->getLogger()->getQueries();
+
+            foreach ($connectionQueries as $row) {
+                if ($onlySlow && $row['time'] < 0.05) {
+                    continue;
+                }
+
+                echo "{$row['time']}\n";
+                $query = self::formatQuery($row['query']);
+                echo "$query\n";
+                echo "\n";
+            }
+
+            foreach ($queries as $row) {
+                if ($onlySlow && $row['time'] < 0.05) {
+                    continue;
+                }
+
+                echo "{$row['time']}\n";
+                $query = self::formatQuery($row['query']);
+                echo "$query\n";
+                echo "\n";
+            }
+        }
+    }
+
+    private static function formatQuery($sql)
+    {
+        $insertIndent = function ($level, $text) {
+            $indent = str_repeat(' ', 4 * $level);
+            return preg_replace("/\n +|(\band\b|\bor\b)/i", "\n" . $indent . '\1', $text);
+        };
+
+        // сначала делаем переводы строк
+        $sql = preg_replace('/SELECT|UPDATE|DELETE|SET|WHERE|FROM|USING|LEFT|INNER|OUTER|RIGHT|ORDER|GROUP|HAVING|LIMIT/', "\n$0", $sql);
+        $sql = preg_replace('/", /', "$0\n    ", $sql);
+
+        // теперь бубеним скобочки
+
+        // tokenizer
+        $parts = preg_split('/([()])/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
+        // descend
+        $currentIndent = 0;
+        for ($i = 1; $i < count($parts); $i += 2) {
+            $isOpening = $parts[$i] == '(';
+
+            // next in $parts is the body after the paren
+            // so what do we do:
+            // (keke should become (<indent><\n>keke
+            // )keke same
+            // also ) should be newlined as well
+
+            // special case: () with only one condition in it
+            // we skip the bastard completely, but the part after the closing paren needs to be processed
+            if ($isOpening && !preg_match('/\b(and|or)\b/i', $parts[$i + 1]) && !empty($parts[$i + 2]) && $parts[$i + 2] == ')') {
+                $parts[$i + 3] = $insertIndent($currentIndent, $parts[$i + 3]);
+                // skipping the closing paren
+                $i += 2;
+                continue;
+            }
+
+            $currentIndent += $isOpening ? 1 : -1;
+            $indent = str_repeat(' ', 4 * $currentIndent);
+            $parts[$i + 1] = "\n" . $indent . $insertIndent($currentIndent, $parts[$i + 1]);
+
+            if (!$isOpening) {
+                $parts[$i] = "\n" . $indent . $parts[$i];
+            }
+        }
+
+        // removing whitespace lines
+        return preg_replace("/\n\s*\n/", "\n", join('', $parts));
+    }
+
     /** @var SqlDialectAbstract */
     protected $sqlDialect;
     /**
