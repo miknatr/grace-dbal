@@ -122,6 +122,15 @@ abstract class BuilderAbstract implements ResultInterface
             ->fetchHash();
     }
     /**
+     * @inheritdoc
+     */
+    public function getNumRows()
+    {
+        return $this
+            ->execute()
+            ->getNumRows();
+    }
+    /**
      * @abstract
      * @return string sql query string
      */

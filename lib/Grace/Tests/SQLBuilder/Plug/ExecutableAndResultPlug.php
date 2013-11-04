@@ -27,4 +27,8 @@ class ExecutableAndResultPlug extends ExecutablePlug implements ResultInterface
     {
         return 'one or false';
     }
+    public function getNumRows()
+    {
+        return 0;
+    }
 }

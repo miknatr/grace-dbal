@@ -54,9 +54,6 @@ class Connection extends ConnectionAbstract
      */
     public function execute($query, array $arguments = array())
     {
-        //define if it command or fetch query
-        $needResult = preg_match('/^(SELECT)/i', ltrim($query));
-
         $query = $this->replacePlaceholders($query, $arguments);
 
         if (!is_resource($this->resource)) {
@@ -73,11 +70,8 @@ class Connection extends ConnectionAbstract
                 $this->rollback();
             }
             throw new QueryException("Query error: " . $error . "\nSQL:\n" . $query);
-        } elseif ($needResult) {
-            return $this->lastResult = new Result($result);
         } else {
-            $this->lastResult = new Result($result);
-            return true;
+            return $this->lastResult = new Result($result);
         }
     }
 
