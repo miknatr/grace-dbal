@@ -224,6 +224,9 @@ abstract class ConnectionAbstract implements ConnectionInterface
         }
 
         switch ($type) {
+            case 'b':
+                $r = (bool) $value ? "'t'" : "'f'";
+                break;
             case 'p':
                 $r = $value;
                 break;
@@ -239,7 +242,14 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 }
                 $r = "'" . $this->escape($value) . "'";
                 break;
-            case 'l':
+            case 'a': // postgres array syntax
+                $r = '';
+                if (!is_array($value)) {
+                    throw new QueryException('Value must be array: ' . print_r($value, true));
+                }
+                $r = '{' . implode(', ', $value) . '}';
+                break;
+            case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
                 $r = '';
                 if (!is_array($value)) {
                     throw new QueryException('Value must be array: ' . print_r($value, true));
@@ -253,7 +263,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
             case 'F':
                 $r = $this->escapeField(explode('.', $value));
                 break;
-            case 'i':
+            case 'i': // comma separated field names (as example - insert queries)
                 $r = '';
                 if (!is_array($value)) {
                     throw new QueryException('Value must be array: ' . print_r($value, true));
