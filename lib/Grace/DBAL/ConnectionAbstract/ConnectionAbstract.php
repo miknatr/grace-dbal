@@ -247,7 +247,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 if (!is_array($value)) {
                     throw new QueryException('Value must be array: ' . print_r($value, true));
                 }
-                $r = '{' . implode(', ', $value) . '}';
+                $r = "'{" . implode(', ', $value) . "}'";
                 break;
             case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
                 $r = '';
