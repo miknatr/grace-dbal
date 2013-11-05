@@ -219,7 +219,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
      */
     private function escapeValueByType($value, $type)
     {
-        if ($type != 'l' and $type != 'i' and (is_object($value) or is_array($value))) {
+        if ($type != 'a' and $type != 'l' and $type != 'i' and (is_object($value) or is_array($value))) {
             throw new QueryException('Value of type ' . $type . ' must be string: ' . print_r($value, true));
         }
 
