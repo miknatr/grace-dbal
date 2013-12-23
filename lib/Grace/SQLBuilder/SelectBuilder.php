@@ -188,6 +188,20 @@ class SelectBuilder extends WhereBuilderAbstract
     }
 
     /**
+     * Sets custom order
+     * @param string $sql
+     * @param array $arguments
+     * @return $this
+     */
+    public function orderBySql($sql, array $arguments = array())
+    {
+        $this->orderSql       = " ORDER BY $sql";
+        $this->orderArguments = $arguments;
+
+        return $this;
+    }
+
+    /**
      * Sets order by statement
      *
      * @param string $field
@@ -223,7 +237,7 @@ class SelectBuilder extends WhereBuilderAbstract
     public function getQueryString()
     {
         return 'SELECT ' . $this->fields . ' FROM ?f AS ?f' . join('', $this->joins) . $this->getWhereSql() .
-            $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
+        $this->groupSql . $this->havingSql . $this->orderSql . $this->limitSql;
     }
     /**
      * @inheritdoc
