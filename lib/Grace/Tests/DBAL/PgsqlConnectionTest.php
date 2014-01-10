@@ -60,17 +60,18 @@ class PgsqlConnectionTest extends ConnectionTestAbstract
 
     public function testReplacingPlaceholders()
     {
-        $r = $this->connection->replacePlaceholders("SELECT ?q, '?e', \"?p\", ?f, ?F, ?l, ?i, ?q:named_pl: FROM DUAL", array(
+        $r = $this->connection->replacePlaceholders("SELECT ?q, '?e', \"?p\", ?f, ?F, ?l, ?v, ?i, ?q:named_pl: FROM DUAL", array(
             '\'quoted\'',
             '\'escaped\'',
             '\'plain\'',
             'test',
             'test1.test2',
             array('t1', 't2'),
+            array(array('t1', 't2'), array('t3', 't4')),
             array('f1', 'f2'),
             'named_pl' => '\'named quoted\'',
         ));
-        $this->assertEquals("SELECT '''quoted''', '''escaped''', \"'plain'\", \"test\", \"test1\".\"test2\", 't1', 't2', \"f1\", \"f2\", '''named quoted''' FROM DUAL", $r);
+        $this->assertEquals("SELECT '''quoted''', '''escaped''', \"'plain'\", \"test\", \"test1\".\"test2\", 't1', 't2', ('t1', 't2'), ('t3', 't4'), \"f1\", \"f2\", '''named quoted''' FROM DUAL", $r);
     }
 
     public function testGettingLastInsertIdBeforeConnectionEsbablished()
