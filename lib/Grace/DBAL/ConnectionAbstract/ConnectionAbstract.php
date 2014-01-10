@@ -2,7 +2,7 @@
 /*
  * This file is part of the Grace package.
  *
- * (c) Mikhail Natrov <miknatr@gmail.com>
+ * (c) Mikhail Natarov <miknatr@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -208,6 +208,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
      * "e" - escaping by "db-escape" function, but not quoting
      * "q" - escaping by "db-escape" function and quoting
      * "l" - escaping by "db-escape" function and quoting for arrays ('1', '2', '3')
+     * "v" - escaping by "db-escape" function and quoting for INSERT ... VALUES ('1', '2', '3'), ('1', '2', '3')
      * "f" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
      * "F" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
      * "i" - escaping by field name for arrays
@@ -219,7 +220,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
      */
     private function escapeValueByType($value, $type)
     {
-        if ($type != 'a' and $type != 'l' and $type != 'i' and (is_object($value) or is_array($value))) {
+        if ($type != 'a' and $type != 'l' and $type != 'i' and $type != 'v' and (is_object($value) or is_array($value))) {
             throw new QueryException('Value of type ' . $type . ' must be string: ' . print_r($value, true));
         }
 
@@ -243,7 +244,6 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 $r = "'" . $this->escape($value) . "'";
                 break;
             case 'a': // postgres array syntax
-                $r = '';
                 if (!is_array($value)) {
                     throw new QueryException('Value must be array: ' . print_r($value, true));
                 }
@@ -256,6 +256,16 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 }
                 foreach ($value as $part) {
                     $r .= is_null($part) ? ", null" : ", '" . $this->escape($part) . "'";
+                }
+                $r = substr($r, 2);
+                break;
+            case 'v':
+                if (!is_array($value)) {
+                    throw new QueryException('Value must be array: ' . print_r($value, true));
+                }
+                $r = '';
+                foreach ($value as $part) {
+                    $r .= ', (' . $this->escapeValueByType($part, 'l') .')';
                 }
                 $r = substr($r, 2);
                 break;
