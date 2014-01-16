@@ -14,7 +14,6 @@ use Doctrine\DBAL\Types\ConversionException;
 use Grace\DBAL\ConnectionAbstract\ConnectionAbstract;
 use Grace\DBAL\Exception\ConnectionException;
 use Grace\DBAL\Exception\QueryException;
-use Grace\DBAL\Pgsql\Result;
 
 /**
  * Pg connection concrete class
@@ -94,14 +93,12 @@ class Connection extends ConnectionAbstract
         if (!is_resource($this->resource)) {
             $this->connect();
         }
-        $escapeSymbol = '"'; // '`'
-        $separator    = '.';
-        $r = '';
+
+        $r         = '';
+        $separator = '.';
         foreach ($names as $value) {
-            if (!is_scalar($value) || strpos($escapeSymbol, $value)) {
-                throw new QueryException('Possible SQL injection in field name');
-            }
-            $r .= $separator . $escapeSymbol . $value . $escapeSymbol;
+            $value = pg_escape_identifier($value);
+            $r    .= $separator . $value;
         }
         return substr($r, strlen($separator));
     }
@@ -113,6 +110,7 @@ class Connection extends ConnectionAbstract
     {
         return $this->lastResult->getAffectedRows();
     }
+
     /**
      * @inheritdoc
      */
@@ -124,6 +122,7 @@ class Connection extends ConnectionAbstract
         pg_query($this->resource, 'START TRANSACTION');
         $this->transactionProcess = true;
     }
+
     /**
      * @inheritdoc
      */
@@ -132,6 +131,7 @@ class Connection extends ConnectionAbstract
         pg_query($this->resource, 'COMMIT;');
         $this->transactionProcess = false;
     }
+
     /**
      * @inheritdoc
      */
@@ -158,6 +158,7 @@ class Connection extends ConnectionAbstract
     {
         $this->close();
     }
+
     /**
      * Establishes connection
      * @throws ConnectionException
@@ -169,6 +170,7 @@ class Connection extends ConnectionAbstract
             $this->resource = null;
         }
     }
+
     /**
      * Establishes connection
      * @throws \Grace\DBAL\Exception\ConnectionException
@@ -184,7 +186,7 @@ class Connection extends ConnectionAbstract
         $this
             ->getLogger()
             ->startConnection('Pgsql connection');
-        $connectString = $this->generateConnectionString($selectDb);
+        $connectString  = $this->generateConnectionString($selectDb);
         $this->resource = @\pg_connect($connectString);
         $this
             ->getLogger()
@@ -200,8 +202,10 @@ class Connection extends ConnectionAbstract
     {
         return "host={$this->host} port={$this->port} user={$this->user} password={$this->password}"
             . ($selectDb ? " dbname={$this->database}" : '')
-            . " options='--client_encoding=UTF8'";
+            . " options='--client_encoding=UTF8'"
+        ;
     }
+
     /**
      * @inheritdoc
      */
