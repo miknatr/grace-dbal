@@ -59,6 +59,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
         }
     }
 
+    // TODO http://github.com/jdorn/sql-formatter
     private static function formatQuery($sql)
     {
         $insertIndent = function ($level, $text) {
