@@ -10,8 +10,6 @@
 
 namespace Grace\DBAL\ConnectionAbstract;
 
-use Grace\DBAL\ConnectionAbstract\ResultInterface;
-
 /**
  * Provides some base functions for concrete result classes
  */
@@ -74,5 +72,18 @@ abstract class ResultAbstract implements ResultInterface
             }
         }
         return $r;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fetchElement()
+    {
+        $row = $this->fetchOneOrFalse();
+        if (count($row) != 1) {
+            throw new \LogicException('Sql-query result must contain one column');
+        }
+
+        return array_shift($row);
     }
 }
