@@ -25,7 +25,7 @@ abstract class BuilderAbstract implements ResultInterface
     protected $alias;
 
     /**
-     * @param                                 $fromTable
+     * @param                                                    $fromTable
      * @param \Grace\DBAL\ConnectionAbstract\ExecutableInterface $executable
      */
     public function __construct($fromTable, ExecutableInterface $executable)
@@ -33,6 +33,7 @@ abstract class BuilderAbstract implements ResultInterface
         $this->setFrom($fromTable);
         $this->executable = $executable;
     }
+
     /**
      * @return $this
      */
@@ -40,6 +41,7 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return clone $this;
     }
+
     /**
      * @param $fromTable
      * @return $this
@@ -53,6 +55,7 @@ abstract class BuilderAbstract implements ResultInterface
         }
         return $this;
     }
+
     /**
      * @param $alias
      * @return $this
@@ -62,6 +65,7 @@ abstract class BuilderAbstract implements ResultInterface
         $this->alias = $alias;
         return $this;
     }
+
     /**
      * @return ResultInterface
      */
@@ -76,6 +80,7 @@ abstract class BuilderAbstract implements ResultInterface
 
         return $this->result;
     }
+
     /**
      * @inheritdoc
      */
@@ -83,8 +88,10 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return $this
             ->execute()
-            ->fetchAll();
+            ->fetchAll()
+        ;
     }
+
     /**
      * @inheritdoc
      */
@@ -92,8 +99,10 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return $this
             ->execute()
-            ->fetchOneOrFalse();
+            ->fetchOneOrFalse()
+        ;
     }
+
     /**
      * @inheritdoc
      */
@@ -101,8 +110,10 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return $this
             ->execute()
-            ->fetchResult();
+            ->fetchResult()
+        ;
     }
+
     /**
      * @inheritdoc
      */
@@ -110,8 +121,21 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return $this
             ->execute()
-            ->fetchColumn();
+            ->fetchColumn()
+        ;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function fetchElement()
+    {
+        return $this
+            ->execute()
+            ->fetchElement()
+        ;
+    }
+
     /**
      * @inheritdoc
      */
@@ -119,8 +143,10 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return $this
             ->execute()
-            ->fetchHash();
+            ->fetchHash()
+        ;
     }
+
     /**
      * @inheritdoc
      */
@@ -128,13 +154,16 @@ abstract class BuilderAbstract implements ResultInterface
     {
         return $this
             ->execute()
-            ->getNumRows();
+            ->getNumRows()
+        ;
     }
+
     /**
      * @abstract
      * @return string sql query string
      */
     abstract protected function getQueryString();
+
     /**
      * @abstract
      * @return array arguments for sql query

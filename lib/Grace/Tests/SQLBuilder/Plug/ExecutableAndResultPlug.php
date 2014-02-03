@@ -3,7 +3,6 @@
 namespace Grace\Tests\SQLBuilder\Plug;
 
 use Grace\DBAL\ConnectionAbstract\ResultInterface;
-use Grace\Tests\SQLBuilder\Plug\ExecutablePlug;
 
 class ExecutableAndResultPlug extends ExecutablePlug implements ResultInterface
 {
@@ -11,22 +10,32 @@ class ExecutableAndResultPlug extends ExecutablePlug implements ResultInterface
     {
         return 'all';
     }
+
     public function fetchResult()
     {
         return 'result';
     }
+
     public function fetchColumn()
     {
         return 'column';
     }
+
     public function fetchHash()
     {
         return 'hash';
     }
+
+    public function fetchElement()
+    {
+        return 'element';
+    }
+
     public function fetchOneOrFalse()
     {
         return 'one or false';
     }
+
     public function getNumRows()
     {
         return 0;
