@@ -51,7 +51,7 @@ abstract class ConnectionTestAbstract extends \PHPUnit_Framework_TestCase
     public function testSuccessfullQueryWithoutResults()
     {
         $r = $this->connection->execute('DO 1');
-        $this->assertTrue((bool)$r);
+        $this->assertTrue((bool) $r);
     }
 
     public function testFailQuery()
