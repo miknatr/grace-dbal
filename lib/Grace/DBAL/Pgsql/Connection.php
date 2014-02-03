@@ -85,6 +85,8 @@ class Connection extends ConnectionAbstract
         return pg_escape_string($value);
     }
 
+    private $fieldCache;
+
     /**
      * @inheritdoc
      */
@@ -97,8 +99,11 @@ class Connection extends ConnectionAbstract
         $r         = '';
         $separator = '.';
         foreach ($names as $value) {
-            $value = pg_escape_identifier($value);
-            $r    .= $separator . $value;
+            if (!isset($this->fieldCache[$value])) {
+                $this->fieldCache[$value] = pg_escape_identifier($value);
+            }
+
+            $r    .= $separator . $this->fieldCache[$value];
         }
         return substr($r, strlen($separator));
     }
