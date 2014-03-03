@@ -11,7 +11,6 @@
 namespace Grace\DBAL\ConnectionAbstract;
 
 use Grace\DBAL\Exception\QueryException;
-use Grace\DBAL\ConnectionAbstract\ConnectionInterface;
 use Grace\DBAL\QueryLogger;
 use Grace\SQLBuilder\Factory;
 use Grace\Cache\CacheInterface;
@@ -23,6 +22,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
 {
     /** @var array ConnectionAbstract */
     private static $connections = array();
+
     public function __construct()
     {
         self::$connections[] = $this;
@@ -33,7 +33,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
         foreach (self::$connections as $connection) {
             /** @var ConnectionAbstract $connection */
             $connectionQueries = $connection->getLogger()->getConnections();
-            $queries = $connection->getLogger()->getQueries();
+            $queries           = $connection->getLogger()->getQueries();
 
             foreach ($connectionQueries as $row) {
                 if ($onlySlow && $row['time'] < 0.05) {
@@ -96,7 +96,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
             }
 
             $currentIndent += $isOpening ? 1 : -1;
-            $indent = str_repeat(' ', 4 * $currentIndent);
+            $indent        = str_repeat(' ', 4 * $currentIndent);
             $parts[$i + 1] = "\n" . $indent . $insertIndent($currentIndent, $parts[$i + 1]);
 
             if (!$isOpening) {
@@ -110,6 +110,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
 
     /** @var SqlDialectAbstract */
     protected $sqlDialect;
+
     /**
      * @return SqlDialectAbstract
      */
@@ -117,7 +118,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
     {
         if ($this->sqlDialect == null) {
             //hardcoded naming convention
-            $class = '\\' . substr(get_class($this), 0, -strlen('Connection')) . 'SqlDialect';
+            $class            = '\\' . substr(get_class($this), 0, -strlen('Connection')) . 'SqlDialect';
             $this->sqlDialect = new $class;
         }
 
@@ -128,6 +129,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
      * @var CacheInterface
      */
     private $cache;
+
     /**
      * @inheritdoc
      */
@@ -136,6 +138,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
         $this->cache = $cache;
         return $this;
     }
+
     /**
      * @inheritdoc
      */
@@ -148,6 +151,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
      * @var QueryLogger
      */
     private $logger;
+
     /**
      * @inheritdoc
      */
@@ -156,6 +160,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
         $this->logger = $logger;
         return $this;
     }
+
     /**
      * @inheritdoc
      */
@@ -166,6 +171,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
         }
         return $this->logger;
     }
+
     /**
      * @inheritdoc
      */
@@ -173,29 +179,32 @@ abstract class ConnectionAbstract implements ConnectionInterface
     {
         return new Factory($this);
     }
+
     /**
      * @inheritdoc
      */
     public function replacePlaceholders($query, array $arguments)
     {
         //firstly, we replace named placeholders like ?i:name: where "i" is escaping type and "name" is parameter name
-        $onMatch = function($matches) use ($arguments, $query, $arguments) {
+        $onMatch = function ($matches) use (&$arguments, &$query) {
             if (!array_key_exists($matches[2], $arguments)) {
                 throw new QueryException("Placeholder named '$matches[2]' is not presented in \$arguments\n$query\n" . print_r($arguments, true));
             }
             return $this->escapeValueByType($arguments[$matches[2]], $matches[1]);
         };
+
         $query = preg_replace_callback("(\?([a-zA-Z]{1}):([a-zA-Z0-9_]{0,100}):)", $onMatch, $query);
 
         //secondly, we replace ordered placeholders like ?i where "i" is escaping type
         $counter = -1;
-        $onMatch = function($matches) use ($arguments, &$counter, $query, $arguments) {
+        $onMatch = function ($matches) use (&$arguments, &$counter, &$query) {
             $counter++;
             if (!array_key_exists($counter, $arguments)) {
                 throw new QueryException("Placeholder number '$counter' is not presented in \$arguments\n$query\n" . print_r($arguments, true));
             }
             return $this->escapeValueByType($arguments[$counter], $matches[1]);
         };
+
         $query = preg_replace_callback("(\?([a-zA-Z]{1}))", $onMatch, $query);
 
         return $query;
@@ -266,7 +275,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
                 }
                 $r = '';
                 foreach ($value as $part) {
-                    $r .= ', (' . $this->escapeValueByType($part, 'l') .')';
+                    $r .= ', (' . $this->escapeValueByType($part, 'l') . ')';
                 }
                 $r = substr($r, 2);
                 break;
@@ -309,7 +318,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
             $this->idCounterByTable[$table]++;
 
             if ($this->getCache()) {
-                $key    = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
+                $key = 'grace_id_gen_' . $table . '_' . strval($this->idCounterByTable[$table]);
 
                 $isBusy = $this->getCache()->get($key);
                 if ($isBusy === null) {
