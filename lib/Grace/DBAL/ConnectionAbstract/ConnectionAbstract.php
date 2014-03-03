@@ -192,7 +192,8 @@ abstract class ConnectionAbstract implements ConnectionInterface
             }
             return $this->escapeValueByType($arguments[$matches[2]], $matches[1]);
         };
-        $query   = preg_replace_callback("(\?([a-zA-Z]{1}):([a-zA-Z0-9_]{0,100}):)", $onMatch, $query);
+
+        $query = preg_replace_callback("(\?([a-zA-Z]{1}):([a-zA-Z0-9_]{0,100}):)", $onMatch, $query);
 
         //secondly, we replace ordered placeholders like ?i where "i" is escaping type
         $counter = -1;
@@ -203,7 +204,8 @@ abstract class ConnectionAbstract implements ConnectionInterface
             }
             return $this->escapeValueByType($arguments[$counter], $matches[1]);
         };
-        $query   = preg_replace_callback("(\?([a-zA-Z]{1}))", $onMatch, $query);
+
+        $query = preg_replace_callback("(\?([a-zA-Z]{1}))", $onMatch, $query);
 
         return $query;
     }
@@ -234,7 +236,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
 
         switch ($type) {
             case 'b':
-                $r = (bool)$value ? "'t'" : "'f'";
+                $r = (bool) $value ? "'t'" : "'f'";
                 break;
             case 'p':
                 $r = $value;
