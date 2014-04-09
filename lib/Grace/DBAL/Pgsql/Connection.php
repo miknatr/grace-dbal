@@ -82,7 +82,7 @@ class Connection extends ConnectionAbstract
         if (!is_resource($this->resource)) {
             $this->connect();
         }
-        return pg_escape_string($value);
+        return pg_escape_string($this->resource, $value);
     }
 
     private $fieldCache;
@@ -96,14 +96,15 @@ class Connection extends ConnectionAbstract
             $this->connect();
         }
 
-        $r         = '';
         $separator = '.';
+
+        $r = '';
         foreach ($names as $value) {
             if (!isset($this->fieldCache[$value])) {
-                $this->fieldCache[$value] = pg_escape_identifier($value);
+                $this->fieldCache[$value] = pg_escape_identifier($this->resource, $value);
             }
 
-            $r    .= $separator . $this->fieldCache[$value];
+            $r .= $separator . $this->fieldCache[$value];
         }
         return substr($r, strlen($separator));
     }
