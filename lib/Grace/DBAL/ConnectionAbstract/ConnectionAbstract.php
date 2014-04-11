@@ -180,125 +180,152 @@ abstract class ConnectionAbstract implements ConnectionInterface
         return new Factory($this);
     }
 
-    /**
-     * @inheritdoc
-     */
+    protected $fieldCache = array();
+
     public function replacePlaceholders($query, array $arguments)
     {
-        //firstly, we replace named placeholders like ?i:name: where "i" is escaping type and "name" is parameter name
-        $onMatch = function ($matches) use (&$arguments, &$query) {
-            if (!array_key_exists($matches[2], $arguments)) {
-                throw new QueryException("Placeholder named '$matches[2]' is not presented in \$arguments\n$query\n" . print_r($arguments, true));
+        $positionalIndex = 0;
+
+        $parts  = explode('?', $query);
+        $length = count($parts);
+        for ($i = 1; $i < $length; $i++) {
+            $part =& $parts[$i];
+            $type = substr($part, 0, 1);
+
+            if (substr($part, 1, 1) == ':') {
+                // named placeholder ?q:name:
+                $end  = strpos($part, ':', 2);
+                $name = substr($part, 2, $end - 2);
+                $part = substr($part, $end + 1);
+
+                if (!array_key_exists($name, $arguments)) {
+                    throw new QueryException("Placeholder named '{$name}' is not presented in \$arguments\n{$query}\n" . print_r($arguments, true));
+                }
+
+                $value = $arguments[$name];
+            } else {
+                // positional placeholder ?q
+                $part = substr($part, 1);
+
+                if (!array_key_exists($positionalIndex, $arguments)) {
+                    throw new QueryException("Placeholder number '{$positionalIndex}' is not presented in \$arguments\n{$query}\n" . print_r($arguments, true));
+                }
+
+                $value = $arguments[$positionalIndex];
+
+                $positionalIndex++;
             }
-            return $this->escapeValueByType($arguments[$matches[2]], $matches[1]);
-        };
 
-        $query = preg_replace_callback("(\?([a-zA-Z]{1}):([a-zA-Z0-9_]{1,100}):)", $onMatch, $query);
+            if (is_scalar($value)) {
+                switch ($type) {
+                    case 'q':
+                        $part = "'" . $this->escape($value) . "'" . $part;
+                        break;
 
-        //secondly, we replace ordered placeholders like ?i where "i" is escaping type
-        $counter = -1;
-        $onMatch = function ($matches) use (&$arguments, &$counter, &$query) {
-            $counter++;
-            if (!array_key_exists($counter, $arguments)) {
-                throw new QueryException("Placeholder number '$counter' is not presented in \$arguments\n$query\n" . print_r($arguments, true));
+                    case 'f':
+                    case 'F':
+                        if (!isset($this->fieldCache[$value])) {
+                            $this->fieldCache[$value] = $this->escapeField($value);
+                        }
+                        $part = $this->fieldCache[$value] . $part;
+                        break;
+
+                    case 'b':
+                        $part = "'" . $this->escape((bool) $value) . "'" . $part;
+                        break;
+
+                    case 'p':
+                        $part = $value . $part;
+                        break;
+
+                    case 'e':
+                        $part = $this->escape($value) . $part;
+                        break;
+
+                    case 'a': // postgres array syntax
+                    case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
+                    case 'v':
+                    case 'i': // comma separated field names (as example - insert queries)
+                        throw new QueryException('Value must be array: ' . var_export($value, true));
+
+                    default:
+                        throw new QueryException('Placeholder has incorrect type: ' . $type);
+                }
+            } elseif ($value === null) {
+                switch ($type) {
+                    case 'e':
+                    case 'q':
+                        $part = 'null' . $part;
+                        break;
+
+                    case 'b':
+                    case 'p':
+                    case 'f':
+                    case 'F':
+                    case 'a': // postgres array syntax
+                    case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
+                    case 'v':
+                    case 'i': // comma separated field names (as example - insert queries)
+                        throw new QueryException("Value of type {$type} must not be null");
+
+                    default:
+                        throw new QueryException("Placeholder has incorrect type: {$type}");
+                }
+            } elseif (is_array($value)) {
+                switch ($type) {
+                    case 'b':
+                    case 'p':
+                    case 'e':
+                    case 'q':
+                    case 'f':
+                    case 'F':
+                        throw new QueryException("Value of type $type must be string: " . var_export($value, true));
+
+                    case 'a': // postgres array syntax
+                        $part = "'{" . implode(', ', $value) . "}'" . $part;
+                        break;
+
+                    case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
+                        $sql = '';
+                        foreach ($value as $v) {
+                            $sql .= $part === null ? ", null" : ", '" . $this->escape($v) . "'";
+                        }
+                        $part = substr($sql, 2) . $part;
+                        break;
+
+                    case 'v':
+                        $sql = '';
+                        foreach ($value as $list) {
+                            $sql .= ', (';
+
+                            $listSql = '';
+                            foreach ($list as $v) {
+                                $listSql .= $part === null ? ", null" : ", '" . $this->escape($v) . "'";
+                            }
+                            $sql .= substr($listSql, 2);
+
+                            $sql .= ')';
+                        }
+                        $part = substr($sql, 2) . $part;
+                        break;
+
+                    case 'i': // comma separated field names (as example - insert queries)
+                        $sql = '';
+                        foreach ($value as $v) {
+                            $sql .= ', ' . $this->escapeField($v);
+                        }
+                        $part = substr($sql, 2) . $part;
+                        break;
+
+                    default:
+                        throw new QueryException("Placeholder has incorrect type: {$type}");
+                }
+            } else {
+                throw new QueryException("Value of type {$type} is incorrect: " . var_export($value, true));
             }
-            return $this->escapeValueByType($arguments[$counter], $matches[1]);
-        };
-
-        $query = preg_replace_callback("(\?([a-zA-Z]{1}))", $onMatch, $query);
-
-        return $query;
-    }
-
-    /**
-     * Escapes value in compliance with type
-     *
-     * Possible values of $type:
-     * "p" - plain value, no escaping
-     * "e" - escaping by "db-escape" function, but not quoting
-     * "q" - escaping by "db-escape" function and quoting
-     * "l" - escaping by "db-escape" function and quoting for arrays ('1', '2', '3')
-     * "v" - escaping by "db-escape" function and quoting for INSERT ... VALUES ('1', '2', '3'), ('1', '2', '3')
-     * "f" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
-     * "F" - escaping by fully-qualified field name ('table.field' => `table`.`field`)
-     * "i" - escaping by field name for arrays
-     *
-     * @param mixed $value
-     * @param string $type
-     * @throws \Grace\DBAL\Exception\QueryException
-     * @return string
-     */
-    private function escapeValueByType($value, $type)
-    {
-        if ($type != 'a' and $type != 'l' and $type != 'i' and $type != 'v' and (is_object($value) or is_array($value))) {
-            throw new QueryException('Value of type ' . $type . ' must be string: ' . print_r($value, true));
         }
-
-        switch ($type) {
-            case 'b':
-                $r = (bool) $value ? "'t'" : "'f'";
-                break;
-            case 'p':
-                $r = $value;
-                break;
-            case 'e':
-                if (is_null($value)) {
-                    return 'null';
-                }
-                $r = $this->escape($value);
-                break;
-            case 'q':
-                if (is_null($value)) {
-                    return 'null';
-                }
-                $r = "'" . $this->escape($value) . "'";
-                break;
-            case 'a': // postgres array syntax
-                if (!is_array($value)) {
-                    throw new QueryException('Value must be array: ' . print_r($value, true));
-                }
-                $r = "'{" . implode(', ', $value) . "}'";
-                break;
-            case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
-                $r = '';
-                if (!is_array($value)) {
-                    throw new QueryException('Value must be array: ' . print_r($value, true));
-                }
-                foreach ($value as $part) {
-                    $r .= is_null($part) ? ", null" : ", '" . $this->escape($part) . "'";
-                }
-                $r = substr($r, 2);
-                break;
-            case 'v':
-                if (!is_array($value)) {
-                    throw new QueryException('Value must be array: ' . print_r($value, true));
-                }
-                $r = '';
-                foreach ($value as $part) {
-                    $r .= ', (' . $this->escapeValueByType($part, 'l') . ')';
-                }
-                $r = substr($r, 2);
-                break;
-            case 'f':
-            case 'F':
-                $r = $this->escapeField(explode('.', $value));
-                break;
-            case 'i': // comma separated field names (as example - insert queries)
-                $r = '';
-                if (!is_array($value)) {
-                    throw new QueryException('Value must be array: ' . print_r($value, true));
-                }
-                foreach ($value as $part) {
-                    $r .= ', ' . $this->escapeField(explode('.', $part));
-                }
-                $r = substr($r, 2);
-                break;
-            default:
-                throw new QueryException('Placeholder has incorrect type: ' . $type);
-        }
-        return $r;
+        return join('', $parts);
     }
-
 
     protected $idCounterByTable = array();
 

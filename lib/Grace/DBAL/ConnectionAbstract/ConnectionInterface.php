@@ -30,10 +30,10 @@ interface ConnectionInterface extends ExecutableInterface
     /**
      * Escapes field name for sql statement
      * @abstract
-     * @param string[] $value array('alias', 'field') any number of parts is possible
+     * @param string $value 'alias.field' any number of parts is possible
      * @return string escaped value
      */
-    public function escapeField(array $value);
+    public function escapeField($value);
     /**
      * Replaces and escapes arguments in query
      *

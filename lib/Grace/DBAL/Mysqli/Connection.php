@@ -92,7 +92,7 @@ class Connection extends ConnectionAbstract
     /**
      * @inheritdoc
      */
-    public function escapeField(array $names)
+    public function escapeField($names)
     {
         if (!is_object($this->dbh)) {
             $this->connect();
@@ -100,7 +100,7 @@ class Connection extends ConnectionAbstract
         $escapeSymbol = '"'; // MySQL is in ANSI mode
         $separator    = '.';
         $r = '';
-        foreach ($names as $value) {
+        foreach (explode('.', $names) as $value) {
             if (!is_scalar($value) || strpos($escapeSymbol, $value)) {
                 throw new QueryException('Possible SQL injection in field name');
             }
