@@ -288,7 +288,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
                     case 'l': // comma separated values (example: IN (?l), array('1', '2') => IN ('1', '2'))
                         $sql = '';
                         foreach ($value as $v) {
-                            $sql .= $part === null ? ", null" : ", '" . $this->escape($v) . "'";
+                            $sql .= $v === null ? ", null" : ", '" . $this->escape($v) . "'";
                         }
                         $part = substr($sql, 2) . $part;
                         break;
@@ -300,7 +300,7 @@ abstract class ConnectionAbstract implements ConnectionInterface
 
                             $listSql = '';
                             foreach ($list as $v) {
-                                $listSql .= $part === null ? ", null" : ", '" . $this->escape($v) . "'";
+                                $listSql .= $v === null ? ", null" : ", '" . $this->escape($v) . "'";
                             }
                             $sql .= substr($listSql, 2);
 
