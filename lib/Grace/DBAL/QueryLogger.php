@@ -78,4 +78,15 @@ class QueryLogger
     {
         return $this->connections;
     }
+    /**
+     * Clear all logged data
+     */
+    public function reset()
+    {
+        $this->timer              = 0;
+        $this->counter            = 0;
+        $this->counterConnections = 0;
+        $this->queries            = array();
+        $this->connections        = array();
+    }
 }
