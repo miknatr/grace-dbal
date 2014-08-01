@@ -167,7 +167,7 @@ class Connection extends ConnectionAbstract
      * Establishes connection
      * @throws ConnectionException
      */
-    private function connect($selectDb = true)
+    private function connect()
     {
         if (!$this->isPhpEnvironmentSupported()) {
             throw new ConnectionException("Function pg_connect doesn't exist");
@@ -185,20 +185,6 @@ class Connection extends ConnectionAbstract
             $error = \error_get_last();
             throw new ConnectionException('Error ' . $error['message']);
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createDatabaseIfNotExist()
-    {
-        $this->connect(false);
-        $isExist = $this->execute("SELECT ?f FROM ?f WHERE ?f=?q", array('datname', 'pg_database', 'datname', $this->database))->fetchResult();
-        if (!$isExist) {
-            $this->execute('CREATE DATABASE ?f', array($this->database));
-        }
-        $this->close();
-        $this->connect();
     }
 
     public function isPhpEnvironmentSupported()

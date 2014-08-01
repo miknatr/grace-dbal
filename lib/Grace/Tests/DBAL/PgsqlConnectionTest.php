@@ -21,7 +21,7 @@ class PgsqlConnectionTest extends ConnectionTestAbstract
         try {
             $this->connection->execute('SELECT 1');
         } catch (ConnectionException $e) {
-            $this->fail('You need to set up pgSQL login/password in config.php which is located in grace root');
+            $this->fail('You need to set up pgSQL login/password in config.php which is located in grace root: ' . $e->getMessage());
         }
     }
     protected function tearDown()

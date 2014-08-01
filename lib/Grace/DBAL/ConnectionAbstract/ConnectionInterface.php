@@ -119,11 +119,6 @@ interface ConnectionInterface extends ExecutableInterface
      */
     public function generateNewId($table);
     /**
-     * Creates db if not exist (must be first query in thread)
-     * @return mixed
-     */
-    public function createDatabaseIfNotExist();
-    /**
      * Is php environment supported
      * @return bool
      */

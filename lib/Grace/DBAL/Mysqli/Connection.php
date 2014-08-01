@@ -61,13 +61,9 @@ class Connection extends ConnectionAbstract
             $this->connect();
         }
 
-        $this
-            ->getLogger()
-            ->startQuery($query);
+        $this->getLogger()->startQuery($query);
         $result = $this->dbh->query($query);
-        $this
-            ->getLogger()
-            ->stopQuery();
+        $this->getLogger()->stopQuery();
 
         if ($result === false) {
             if ($this->transactionProcess) {
@@ -170,7 +166,7 @@ class Connection extends ConnectionAbstract
      * Establishes connection
      * @throws \Grace\DBAL\Exception\ConnectionException
      */
-    private function connect($selectDb = true)
+    private function connect()
     {
         if (!$this->isPhpEnvironmentSupported()) {
             throw new ConnectionException("Function mysqli_connect doesn't exist");
@@ -179,7 +175,7 @@ class Connection extends ConnectionAbstract
         //Can throw warning, if have incorrect connection params
         //So we need '@'
         $this->getLogger()->startConnection('Mysqli connection');
-        $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $selectDb ? $this->database : null, (int)$this->port);
+        $this->dbh = @mysqli_connect($this->host, $this->user, $this->password, $this->database, (int)$this->port);
         $this->getLogger()->stopConnection();
 
         if (mysqli_connect_error()) {
@@ -194,15 +190,6 @@ class Connection extends ConnectionAbstract
         $this->dbh->query("SET SESSION collation_connection = 'utf8_general_ci'");
         $this->dbh->query("SET sql_mode = 'ANSI'");
         $this->getLogger()->stopConnection();
-    }
-    /**
-     * @inheritdoc
-     */
-    public function createDatabaseIfNotExist()
-    {
-        $this->connect(false);
-        $this->execute('CREATE DATABASE IF NOT EXISTS ?f', array($this->database));
-        $this->dbh->select_db($this->database);
     }
 
     public function isPhpEnvironmentSupported()
