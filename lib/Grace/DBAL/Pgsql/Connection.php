@@ -116,10 +116,7 @@ class Connection extends ConnectionAbstract
      */
     public function start()
     {
-        if (!is_resource($this->resource)) {
-            $this->connect();
-        }
-        pg_query($this->resource, 'START TRANSACTION');
+        $this->execute('START TRANSACTION');
         $this->transactionProcess = true;
     }
 
@@ -128,7 +125,7 @@ class Connection extends ConnectionAbstract
      */
     public function commit()
     {
-        pg_query($this->resource, 'COMMIT;');
+        $this->execute('COMMIT');
         $this->transactionProcess = false;
     }
 
@@ -137,17 +134,13 @@ class Connection extends ConnectionAbstract
      */
     public function rollback()
     {
-        pg_query($this->resource, 'ROLLBACK;');
+        $this->execute('ROLLBACK');
         $this->transactionProcess = false;
     }
 
-    //TODO поговорить на тему getLastInsertId который крайне криво реализуется для PostgresSQL
-    //В принципе если передать в getLastInsertId имя таблицы и договориться SEQUENCE для всех таблиц именовать
-    //Так как они именуются при автогенерации при использовании field_name SERIAL, то это вполне решаемо.
-    // Но в таком случае у нас все равно рассыпается интерфейс, т.к. в обычном случае контекст не нужно передавать,
-    // А сюда надо.
     public function getLastInsertId()
     {
+        // postgres problem
         throw new ConnectionException('Undefined behavior');
     }
 
@@ -161,7 +154,6 @@ class Connection extends ConnectionAbstract
 
     /**
      * Establishes connection
-     * @throws ConnectionException
      */
     private function close()
     {
@@ -173,7 +165,7 @@ class Connection extends ConnectionAbstract
 
     /**
      * Establishes connection
-     * @throws \Grace\DBAL\Exception\ConnectionException
+     * @throws ConnectionException
      */
     private function connect($selectDb = true)
     {
@@ -181,29 +173,18 @@ class Connection extends ConnectionAbstract
             throw new ConnectionException("Function pg_connect doesn't exist");
         }
 
-        //Can throw warning, if have incorrect connection params
-        //So we need '@'
-        $this
-            ->getLogger()
-            ->startConnection('Pgsql connection');
-        $connectString  = $this->generateConnectionString($selectDb);
+        $this->getLogger()->startConnection('Pgsql connection');
+
+        $connectString  = "host={$this->host} port={$this->port} user={$this->user} password={$this->password} dbname={$this->database} options='--client_encoding=UTF8'";
+        //Can throw warning, if have incorrect connection params. So we need '@'
         $this->resource = @\pg_connect($connectString);
-        $this
-            ->getLogger()
-            ->stopConnection();
+
+        $this->getLogger()->stopConnection();
 
         if (!$this->resource) {
             $error = \error_get_last();
             throw new ConnectionException('Error ' . $error['message']);
         }
-    }
-
-    private function generateConnectionString($selectDb = true)
-    {
-        return "host={$this->host} port={$this->port} user={$this->user} password={$this->password}"
-            . ($selectDb ? " dbname={$this->database}" : '')
-            . " options='--client_encoding=UTF8'"
-        ;
     }
 
     /**
