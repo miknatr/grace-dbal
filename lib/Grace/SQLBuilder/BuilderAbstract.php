@@ -81,68 +81,56 @@ abstract class BuilderAbstract implements ResultInterface
      */
     public function fetchAll()
     {
-        return $this
-            ->execute()
-            ->fetchAll();
+        return $this->execute()->fetchAll();
     }
     /**
      * @inheritdoc
      */
     public function fetchOneOrFalse()
     {
-        return $this
-            ->execute()
-            ->fetchOneOrFalse();
+        return $this->execute()->fetchOneOrFalse();
     }
     /**
      * @inheritdoc
      */
     public function fetchAssocAll()
     {
-        return $this->fetchAll();
+        return $this->execute()->fetchAssocAll();
     }
     /**
      * @inheritdoc
      */
     public function fetchAssocOneOrFalse()
     {
-        return $this->fetchOneOrFalse();
+        return $this->execute()->fetchAssocOneOrFalse();
     }
     /**
      * @inheritdoc
      */
     public function fetchResult()
     {
-        return $this
-            ->execute()
-            ->fetchResult();
+        return $this->execute()->fetchResult();
     }
     /**
      * @inheritdoc
      */
     public function fetchColumn()
     {
-        return $this
-            ->execute()
-            ->fetchColumn();
+        return $this->execute()->fetchColumn();
     }
     /**
      * @inheritdoc
      */
     public function fetchHash()
     {
-        return $this
-            ->execute()
-            ->fetchHash();
+        return $this->execute()->fetchHash();
     }
     /**
      * @inheritdoc
      */
     public function getNumRows()
     {
-        return $this
-            ->execute()
-            ->getNumRows();
+        return $this->execute()->getNumRows();
     }
     /**
      * @abstract
