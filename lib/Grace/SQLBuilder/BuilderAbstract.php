@@ -97,6 +97,20 @@ abstract class BuilderAbstract implements ResultInterface
     /**
      * @inheritdoc
      */
+    public function fetchAssocAll()
+    {
+        return $this->fetchAll();
+    }
+    /**
+     * @inheritdoc
+     */
+    public function fetchAssocOneOrFalse()
+    {
+        return $this->fetchOneOrFalse();
+    }
+    /**
+     * @inheritdoc
+     */
     public function fetchResult()
     {
         return $this

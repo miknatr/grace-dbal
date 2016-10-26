@@ -16,17 +16,29 @@ namespace Grace\DBAL\ConnectionAbstract;
 interface ResultInterface
 {
     /**
-     * Fetches one row or false
+     * Fetches one row or ORM model or false
      * @abstract
      * @return array|bool one row from db as associative array
      */
     public function fetchOneOrFalse();
     /**
-     * Fetches all rows as array
+     * Fetches all rows as array or ORM model
      * @abstract
      * @return array rows
      */
     public function fetchAll();
+    /**
+     * Fetches one row or false
+     * @abstract
+     * @return array|bool one row from db as associative array
+     */
+    public function fetchAssocOneOrFalse();
+    /**
+     * Fetches all rows as array
+     * @abstract
+     * @return array rows
+     */
+    public function fetchAssocAll();
     /**
      * Fetches first value from first row of result
      * @abstract

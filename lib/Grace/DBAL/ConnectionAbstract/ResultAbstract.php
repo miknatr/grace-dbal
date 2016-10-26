@@ -20,6 +20,14 @@ abstract class ResultAbstract implements ResultInterface
     /**
      * @inheritdoc
      */
+    public function fetchAssocOneOrFalse()
+    {
+        return $this->fetchOneOrFalse();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function fetchAll()
     {
         $r = array();
@@ -27,6 +35,14 @@ abstract class ResultAbstract implements ResultInterface
             $r[] = $row;
         }
         return $r;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fetchAssocAll()
+    {
+        return $this->fetchAll();
     }
 
     /**

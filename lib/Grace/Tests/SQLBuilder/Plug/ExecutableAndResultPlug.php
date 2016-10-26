@@ -11,6 +11,10 @@ class ExecutableAndResultPlug extends ExecutablePlug implements ResultInterface
     {
         return 'all';
     }
+    public function fetchAssocAll()
+    {
+        return 'assoc all';
+    }
     public function fetchResult()
     {
         return 'result';
@@ -26,6 +30,10 @@ class ExecutableAndResultPlug extends ExecutablePlug implements ResultInterface
     public function fetchOneOrFalse()
     {
         return 'one or false';
+    }
+    public function fetchAssocOneOrFalse()
+    {
+        return 'assoc one or false';
     }
     public function getNumRows()
     {
