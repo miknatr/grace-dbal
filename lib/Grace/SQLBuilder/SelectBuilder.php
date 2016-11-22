@@ -34,7 +34,8 @@ class SelectBuilder extends WhereBuilderAbstract
      */
     public function count()
     {
-        $this->fields = 'COUNT(?f:alias:.?f) AS ?f';
+        // $this->fields = 'COUNT(?f:alias:.?f) AS ?f';
+        $this->fields = 'COUNT(*) AS ?f'; // faster for postgresql
         //TODO id - magic field
         $this->fieldsArguments = array();
         $this->fieldsArguments[] = 'id';
