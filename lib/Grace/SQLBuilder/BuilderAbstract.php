@@ -70,7 +70,7 @@ abstract class BuilderAbstract implements ResultInterface
         if (!$this->result) {
             $this->result = $this->executable->execute(
                 $this->getQueryString(),
-                array_merge(array('alias' => $this->alias), $this->getQueryArguments())
+                $this->getQueryArguments()
             );
         }
 
@@ -136,11 +136,13 @@ abstract class BuilderAbstract implements ResultInterface
      * @abstract
      * @return string sql query string
      */
-    abstract protected function getQueryString();
+    abstract public function getQueryString();
     /**
-     * @abstract
      * @return array arguments for sql query
      */
-    abstract protected function getQueryArguments();
+    public function getQueryArguments()
+    {
+        return array('alias' => $this->alias);
+    }
 }
 

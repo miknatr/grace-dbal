@@ -18,14 +18,14 @@ class DeleteBuilder extends WhereBuilderAbstract
     /**
      * @inheritdoc
      */
-    protected function getQueryString()
+    public function getQueryString()
     {
         return 'DELETE FROM ?f' . $this->getWhereSql();
     }
     /**
      * @inheritdoc
      */
-    protected function getQueryArguments()
+    public function getQueryArguments()
     {
         $arguments = parent::getQueryArguments();
         array_unshift($arguments, $this->from);

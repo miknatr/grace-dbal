@@ -42,14 +42,14 @@ class UpdateBuilder extends WhereBuilderAbstract
 
         return $this;
     }
-    protected function getQueryString()
+    public function getQueryString()
     {
         if (count($this->fieldValues) == 0) {
             throw new \LogicException('Set values for update before execute');
         }
         return 'UPDATE ?f SET ' . $this->fieldsSql . $this->getWhereSql();
     }
-    protected function getQueryArguments()
+    public function getQueryArguments()
     {
         return array_merge(array($this->from), $this->fieldValues, parent::getQueryArguments());
     }

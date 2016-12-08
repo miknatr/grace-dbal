@@ -52,7 +52,7 @@ class InsertBuilder extends BuilderAbstract
     /**
      * @inheritdoc
      */
-    protected function getQueryString()
+    public function getQueryString()
     {
         if (count($this->fieldValues) == 0) {
             throw new \LogicException('Set values for insert before execute');
@@ -62,9 +62,9 @@ class InsertBuilder extends BuilderAbstract
     /**
      * @inheritdoc
      */
-    protected function getQueryArguments()
+    public function getQueryArguments()
     {
-        $arguments = $this->fieldValues;
+        $arguments = array_merge($this->fieldValues, parent::getQueryArguments());
         array_unshift($arguments, $this->from);
         return $arguments;
     }

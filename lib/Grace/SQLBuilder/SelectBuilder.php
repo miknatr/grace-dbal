@@ -243,7 +243,7 @@ class SelectBuilder extends WhereBuilderAbstract
     /**
      * @inheritdoc
      */
-    protected function getQueryArguments()
+    public function getQueryArguments()
     {
         $arguments = parent::getQueryArguments();
         return array_merge($this->fieldsArguments, array($this->from, $this->alias), $this->joinArguments, $arguments, $this->groupArguments, $this->havingArguments, $this->orderArguments);

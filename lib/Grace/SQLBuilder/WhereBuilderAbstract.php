@@ -321,9 +321,9 @@ abstract class WhereBuilderAbstract extends BuilderAbstract
     /**
      * @inheritdoc
      */
-    protected function getQueryArguments()
+    public function getQueryArguments()
     {
-        return $this->arguments;
+        return array_merge($this->arguments, parent::getQueryArguments());
     }
     /**
      * @return string
